@@ -47,25 +47,27 @@ export const ChatPage = () => {
     const processMessage = async (text) => {
         if (!text || !text.trim() || isLoading) return;
 
+        // 1. Add User Message to UI
         const userMsg = { id: Date.now(), type: 'user', text: `[${selectedTag}] ${text}` };
         setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsLoading(true);
 
-        // Controller to handle potential server hangups during file writes
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
+        // 2. Standard Chat Logic (Ensuring API is called)
         try {
             const res = await fetch("http://localhost:5174/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: text, useData: useDataContext, useCode: useCodeContext, useKnowledge: useKnowledgeContext }),
-                signal: controller.signal
+                body: JSON.stringify({ 
+                    prompt: text, 
+                    useData: useDataContext, 
+                    useCode: useCodeContext,
+                    useKnowledge: useKnowledgeContext
+                }),
             });
             
-            clearTimeout(timeoutId);
             const data = await res.json();
+            if (data.error) throw new Error(data.error);
 
             let botText = data.reply;
             if (data.wasUpdated) {
@@ -74,13 +76,10 @@ export const ChatPage = () => {
 
             setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: botText }]);
         } catch (e) {
-            if (e.name === 'AbortError') {
-                setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: "⚠️ Request timed out. The file may have been updated, but the server is restarting." }]);
-            } else {
-                setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: "❌ Connection lost. If you are using Vite, ensure main.py is ignored in vite.config.js." }]);
-            }
+            console.error("Chat Error:", e);
+            setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: `❌ Error: ${e.message}` }]);
         } finally {
-            setIsLoading(false);
+            setIsLoading(false); // ALWAYS reset loading
         }
     };
 

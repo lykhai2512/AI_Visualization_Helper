@@ -1,0 +1,19 @@
+{
+  "project_rules": [
+    {
+      "id": "R-001",
+      "title": "Library Restriction",
+      "description": "The chatbot is strictly prohibited from using any Python libraries other than numpy, pandas, matplotlib, and seaborn. Do not suggest or use pip install for other packages."
+    },
+    {
+      "id": "PATH-001",
+      "title": "Absolute Pathing Mandate",
+      "description": "Never use hardcoded relative path strings (e.g., '../data/'). You MUST use 'os.path.abspath(__file__)' to determine the script's directory and build absolute paths to the /data, /knowledge, and /src/assets folders."
+    },
+    {
+      "id": "PATH-002",
+      "title": "Directory Structure Awareness",
+      "description": "Assume the following structure: 'src/code/main.py' is the script location. Data is in 'src/data/', Knowledge is in 'src/knowledge/', and Assets are in 'src/assets/'. Use 'os.path.join(current_dir, '..', 'folder_name')' to navigate."
+    }
+  ]
+}

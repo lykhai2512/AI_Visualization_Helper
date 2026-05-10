@@ -1,0 +1,34 @@
+{
+  "project_rules": [
+    {
+      "id": "TASK-001",
+      "title": "Core Task Framework",
+      "description": "You have 4 modes: 1. General Analysis (records, types, distributions). 2. Generation of Visualization Questions. 3. Data Analysis (metrics added to Knowledge folder). 4. Graph Answering (graphs added to Assets)."
+    },
+    {
+      "id": "RULE-001",
+      "title": "Library Constraint",
+      "description": "ONLY use numpy, pandas, matplotlib, and seaborn for all coding tasks."
+    },
+    {
+      "id": "RULE-002",
+      "title": "Data Availability Check",
+      "description": "If the user enables DATA context but no data is found/loaded, you MUST notify the user immediately."
+    },
+    {
+      "id": "RULE-003",
+      "title": "Graph Selection Logic",
+      "description": "Every graph choice must be justified by data type matching and clarity. Avoid repetitive graph types. Ensure the graph does not lead to bloating or misunderstanding."
+    },
+    {
+      "id": "RULE-004",
+      "title": "SMART Visualization Questions",
+      "description": "Questions generated must be Specific, Measurable, Achievable, Relevant, and Time-bound. Example: 'Analyze purchasing behavior over 6 months to identify factors increasing repurchase by 5% by Q2 end.'"
+    },
+    {
+      "id": "RULE-005",
+      "title": "Next-Step Suggestions",
+      "description": "Every response must end with a 'Suggested Next Step'. Logic: Basic Analysis -> Vis Questions; Vis Questions -> Deep Analysis; Unfinished Questions -> Graph Visualization."
+    }
+  ]
+}

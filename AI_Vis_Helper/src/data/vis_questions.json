@@ -1,0 +1,76 @@
+{
+  "update_vis_questions": [
+    {
+      "id": 1,
+      "question": "Determine the comprehensive churn rate and analyze its distribution across `customer_segment` and `risk_segment` categories. The objective is to identify specific segments exhibiting the highest churn percentages, informing strategic interventions by the end of the next fiscal quarter.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 2,
+      "question": "Investigate the variance in customer churn (`exit` status) when disaggregated by `age` groups (e.g., young adults, middle-aged, seniors) and `gender` categories. The aim is to delineate demographic profiles exhibiting the highest susceptibility to churn within the forthcoming three-month period.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 3,
+      "question": "Quantify the mean `balance`, `monthly_ir` (monthly income), and `credit_sco` for both churned and retained customer cohorts. Furthermore, ascertain if specific threshold values within these metrics exhibit a robust correlation with an elevated churn risk, thereby enabling the formulation of an effective retention strategy by the conclusion of Q3.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 4,
+      "question": "Assess the influence of `tenure_ye` (years of tenure), `nums_card` (number of cards), and `nums_service` (number of services) on customer churn. The analysis will determine if customers characterized by lower tenure, fewer cards, or fewer services demonstrate a statistically significant increase in churn propensity, guiding the development of product bundling strategies prior to year-end.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 5,
+      "question": "Evaluate whether a statistically significant discrepancy exists in churn rates between `active_member` statuses (True/False) and `digital_behavior` types (offline, mobile). The objective is to quantify the potential for churn reduction attainable through targeted promotion of digital engagement among currently inactive members by the commencement of the next fiscal year.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 6,
+      "question": "Analyze the correlation between `engagement_score` distribution and `loyalty_level` categories with customer churn. This analysis aims to identify specific score ranges or loyalty tiers that demonstrate disproportionately elevated churn rates, thereby facilitating the implementation of targeted loyalty programs within the subsequent six-month period.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 7,
+      "question": "Conduct an analysis of churn rates disaggregated by `married` statuses (Single, Married, Divorced, Widowed) and the top five `occupation` categories. This investigation seeks to uncover specific customer segments exhibiting an elevated churn risk, providing critical insights for the formulation of personalized communication strategies by the conclusion of Q4.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 8,
+      "question": "Determine if specific `origin_province` or `address` (district) areas exhibit statistically higher churn rates. Furthermore, delineate how these geographical insights can be leveraged to effectively customize local retention initiatives and optimize resource allocation within the ensuing nine-month timeframe.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 9,
+      "question": "Examine the distribution of `risk_score` among churned versus retained customers. The objective is to identify an optimal `risk_score` threshold (potentially distinct from the current 82nd percentile used for labeling) that most effectively predicts actual churn, thereby enhancing predictive accuracy by the end of Q2.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 10,
+      "question": "Characterize the distinct attributes of `cluster_group`s (1, 2, 3, 4) with respect to their churn rate, engagement metrics, and financial profiles. The overarching goal is to identify a specific cluster that unequivocally represents a high-churn, low-value customer segment, thereby informing decisions regarding strategic divestment or concentrated retention initiatives.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 11,
+      "question": "Ascertain the top three combinations of `customer_segment`, `risk_segment`, and a pivotal behavioral factor (`engagement_score` or `tenure_ye`) that collectively represent customer cohorts with the highest churn probability (e.g., exceeding 25%). This identification will serve to prioritize targeted intervention strategies for these groups within the forthcoming month.",
+      "is_visualized": false,
+      "graph_path": null
+    },
+    {
+      "id": 12,
+      "question": "Investigate the correlation between the `last_transaction_month` amount and churn probability. This analysis will specifically differentiate between customers with recent high-value transactions and those exhibiting low or zero `last_transaction_month` values, providing actionable intelligence for the deployment of immediate engagement campaigns targeting at-risk customers by the end of the current month.",
+      "is_visualized": false,
+      "graph_path": null
+    }
+  ]
+}

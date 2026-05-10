@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     watch: {
       // Add this to prevent the browser from resetting when main.py changes
-      ignored: ['**/src/code/main.py', '**/src/data/**'],
+      ignored: ['**/src/code/main.py', '**/src/data/**', '**/src/knowledge/**'],
     },
   },
 })

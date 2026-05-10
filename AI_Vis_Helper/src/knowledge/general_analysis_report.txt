@@ -1,0 +1,117 @@
+--- General Dataset Analysis ---
+
+Dataset Shape (Rows, Columns): (43933, 26)
+
+--- Column Information (Data Types, Non-Null Counts) ---
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 43933 entries, 0 to 43932
+Data columns (total 26 columns):
+ #   Column                  Non-Null Count  Dtype  
+---  ------                  --------------  -----  
+ 0   id                      43933 non-null  int64  
+ 1   full_name               43933 non-null  object 
+ 2   credit_sco              43933 non-null  int64  
+ 3   gender                  43933 non-null  object 
+ 4   age                     43933 non-null  int64  
+ 5   occupation              43933 non-null  object 
+ 6   balance                 43933 non-null  int64  
+ 7   monthly_ir              43933 non-null  int64  
+ 8   address                 43933 non-null  object 
+ 9   origin_province         43933 non-null  object 
+ 10  tenure_ye               43933 non-null  int64  
+ 11  married                 43933 non-null  int64  
+ 12  nums_card               43933 non-null  int64  
+ 13  nums_service            43933 non-null  int64  
+ 14  active_member           43933 non-null  bool   
+ 15  last_active_date        43933 non-null  object 
+ 16  last_transaction_month  43933 non-null  int64  
+ 17  created_date            43933 non-null  object 
+ 18  exit                    43933 non-null  bool   
+ 19  customer_segment        43933 non-null  object 
+ 20  engagement_score        43933 non-null  int64  
+ 21  loyalty_level           43933 non-null  object 
+ 22  digital_behavior        43932 non-null  object 
+ 23  risk_score              43932 non-null  float64
+ 24  risk_segment            43932 non-null  object 
+ 25  cluster_group           43932 non-null  float64
+dtypes: bool(2), float64(2), int64(11), object(11)
+memory usage: 8.1+ MB
+
+--- Descriptive Statistics for Numerical Columns ---
+                 id    credit_sco           age       balance    monthly_ir     tenure_ye       married     nums_card  nums_service  last_transaction_month  engagement_score    risk_score  cluster_group
+count  43933.000000  43933.000000  43933.000000  4.393300e+04  4.393300e+04  43933.000000  43933.000000  43933.000000  43933.000000            4.393300e+04      43933.000000  43932.000000   43932.000000
+mean   21967.000000    684.431999     49.396035  6.122240e+07  3.781124e+07      1.778481      0.970000      2.637744      3.578813            8.802573e+06         31.805955      0.268805       1.973891
+std    12682.509025     51.070981     15.077259  8.848930e+07  3.645356e+07      1.319750      0.690831      1.220572      2.002652            3.417116e+07         23.425982      0.091649       1.042768
+min        1.000000    498.000000     20.000000  4.874610e+05  3.000000e+06      0.000000      0.000000      1.000000      1.000000            0.000000e+00          7.000000      0.019700       1.000000
+25%    10984.000000    649.000000     38.000000  1.462850e+07  1.400000e+07      1.000000      1.000000      2.000000      2.000000            0.000000e+00         16.000000      0.200000       1.000000
+50%    21967.000000    682.000000     47.000000  3.103720e+07  2.300000e+07      2.000000      1.000000      2.000000      3.000000            0.000000e+00         22.000000      0.276300       2.000000
+75%    32950.000000    718.000000     59.000000  6.987838e+07  4.700000e+07      3.000000      1.000000      3.000000      5.000000            0.000000e+00         38.000000      0.338300       2.000000
+max    43933.000000    800.000000     90.000000  1.000000e+09  2.080000e+08      4.000000      3.000000      5.000000      8.000000            6.000000e+08        100.000000      0.540400       4.000000
+
+--- Value Counts for Key Categorical Columns ---
+
+--- gender Value Counts ---
+gender
+male      22078
+female    21855
+
+--- married Value Counts ---
+married
+1    29425
+0     8996
+2     3346
+3     2166
+
+--- active_member Value Counts ---
+active_member
+False    34476
+True      9457
+
+--- exit Value Counts ---
+exit
+False    36012
+True      7921
+
+--- customer_segment Value Counts ---
+customer_segment
+Emerging    17338
+Mass        11752
+Priority     8639
+Affluent     6204
+
+--- loyalty_level Value Counts ---
+loyalty_level
+Bronze    38028
+Silver     4936
+Gold        968
+Si            1
+
+--- digital_behavior Value Counts ---
+digital_behavior
+offline    34475
+mobile      9457
+
+--- risk_segment Value Counts ---
+risk_segment
+Low       41110
+Medium     2822
+
+--- cluster_group Value Counts ---
+cluster_group
+2.0    18540
+1.0    17004
+4.0     7469
+3.0      919
+
+--- occupation Value Counts ---
+occupation
+Kỹ sư/Chuyên viên IT             4502
+Nội trợ/Sinh viên                4460
+Nhân viên văn phòng/Công chức    4415
+Kế toán/Tài chính                4397
+Giáo viên/Giảng viên             4393
+Quản lý/Lãnh đạo                 4383
+Kinh doanh/Bán hàng              4382
+Chủ Doanh nghiệp nhỏ             4361
+Lao động phổ thông               4337
+Hưu trí                          4303
