@@ -1,10 +1,61 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-.prose ul {
-    list-style-type: disc;
-    padding-left: 1.25rem;
-    margin-bottom: 0.5rem;
+* {
+    box-sizing: border-box;
 }
-.prose p {
-    margin-bottom: 0.5rem;
+
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #222739;
+    border-radius: 4px;
+}
+
+/* Animations */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotPulse {
+    0%,60%,100% { opacity: 0.3; transform: scale(0.8); }
+    30%          { opacity: 1;   transform: scale(1); }
+}
+
+/* Prose overrides for dark chat bubbles */
+.prose-invert p {
+    margin-bottom: 0.4rem;
+}
+
+.prose-invert ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0.4rem;
+    list-style-type: disc;
+}
+
+.prose-invert li {
+    margin-bottom: 2px;
+}
+
+.prose-invert h1,
+.prose-invert h2,
+.prose-invert h3 {
+    color: #a5a0ff;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
 }

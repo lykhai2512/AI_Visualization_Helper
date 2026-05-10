@@ -42,6 +42,37 @@ const VIS_QUESTIONS_FILE = path.join(__dirname, "../src/data/vis_questions.json"
     try { await fs.mkdir(dir, { recursive: true }); } catch (e) {}
 });
 
+// Multer – save uploaded files directly into DATA_DIR
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, DATA_DIR),
+        filename: (req, file, cb) => cb(null, file.originalname),
+    }),
+    fileFilter: (req, file, cb) => {
+        const allowed = ['.csv', '.txt'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, allowed.includes(ext));
+    },
+});
+
+// POST Upload Data Files
+app.post("/api/upload", upload.array("files"), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: "No valid files received. Only .csv and .txt are accepted." });
+        }
+        const saved = req.files.map(f => f.originalname);
+        console.log("Uploaded:", saved);
+        res.json({
+            message: saved.join(", "),
+            files: saved,
+        });
+    } catch (e) {
+        console.error("Upload Error:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Helper to get active rules
 async function getActiveRules() {
     try {
