@@ -1,74 +1,28 @@
 {
+  "update_code": "import pandas as pd\nimport os\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\n# 1. Định nghĩa đường dẫn đến file CSV\ncsv_file_name = \"data.csv\"\ncsv_file_folder = \"data\"\n\n# Xác định thư mục của script hiện tại\ncurrent_dir = os.path.dirname(os.path.abspath(__file__))\n\n# Xây dựng đường dẫn tuyệt đối đến file CSV\ncsv_file_path = os.path.join(current_dir, '..', csv_file_folder, csv_file_name)\n\n# Định nghĩa ánh xạ toàn diện từ tên cột CSV thực tế sang tên nội bộ mong muốn\n# Các key phải là tên cột chính xác như trong CSV (không có BOM cho tra cứu, nhưng được lưu đúng để đổi tên)\ncolumn_name_map = {\n    'Mã_khách_hàng': 'id',\n    'Giới tính': 'gender',\n    'Tuổi': 'age',\n    'Nghề_nghiệp': 'occupation',\n    'Số_dư': 'balance',\n    'Thu_nhập_hàng_tháng': 'monthly_ir',\n    'Địa_chỉ': 'address',\n    'Tình_trạng_hôn_nhân': 'married',\n    'Số_thẻ': 'nums_card',\n    'Số_lần_dùng_dịch_vụ': 'nums_service',\n    'Trạng_thái_hoạt_động_trong_90_ngày_gần_nhất': 'active_member',\n    'Ngày_hoạt_động_gần_nhất': 'last_active_date',\n    'Giao_dịch_tháng_gần_nhất': 'last_transaction_month',\n    'Ngày_tạo_tài_khoản': 'created_date',\n    'Trạng_thái_rời_bỏ': 'exit',\n    'Phân_khúc_khách_hàng': 'customer_segment',\n    'Điểm_tín_dụng': 'credit_sco',\n    'Điểm_tương_tác': 'engagement_score',\n    'Mức_độ_trung_thành': 'loyalty_level',\n    'Hành_vi_số_hóa': 'digital_behavior',\n}\n\ntry:\n    # 2. Đọc file CSV vào DataFrame, chỉ định encoding 'utf-8' để xử lý ký tự tiếng Việt\n    df = pd.read_csv(csv_file_path, encoding='utf-8')\n\n    # Khởi tạo từ điển để đổi tên các cột thực sự có trong DataFrame\n    rename_columns_dict = {}\n    for col in df.columns:\n        # Xóa ký tự BOM (ufeff) tiềm ẩn khỏi tên cột để tra cứu\n        clean_col_for_lookup = col.replace('\\ufeff', '')\n        if clean_col_for_lookup in column_name_map:\n            # Sử dụng tên cột gốc (có thể có BOM) làm key cho df.rename\n            rename_columns_dict[col] = column_name_map[clean_col_for_lookup]\n        else:\n            rename_columns_dict[col] = col # Giữ tên gốc nếu không tìm thấy ánh xạ\n\n    # Đổi tên các cột trong DataFrame\n    df.rename(columns=rename_columns_dict, inplace=True)\n    \n    # Kiểm tra xem các cột cần thiết có tồn tại sau khi đổi tên hay không\n    required_cols_for_q3 = ['age', 'gender']\n    if not all(col in df.columns for col in required_cols_for_q3):\n        raise ValueError(f\"Error: One or more required columns ({required_cols_for_q3}) not found after renaming. Please check data and mapping.\")\n\n    # --- Bắt đầu Trực quan hóa Biểu đồ cho Câu hỏi 3 ---    \n    # Câu hỏi 3: Phân tích tổng số khách hàng theo nhóm tuổi và giới tính để xác định\n    # các phân khúc nhân khẩu học chính cho các sản phẩm tùy chỉnh vào cuối Q3.\n\n    # Định nghĩa các khoảng tuổi và nhãn cho việc nhóm, theo yêu cầu của câu hỏi\n    # Bins: 18-35, 36-55, 56-75, 76+ (đến 100). Sử dụng 101 để bao gồm tuổi 100 với right=False.\n    bins_q3 = [18, 36, 56, 76, 101]\n    labels_q3 = ['18-35 (Young Adult)', '36-55 (Middle Age)', '56-75 (Senior)', '76+ (Elderly)']\n\n    # Tạo cột 'age_group_q3' mới dựa trên các khoảng tuổi đã định nghĩa\n    df['age_group_q3'] = pd.cut(df['age'], bins=bins_q3, labels=labels_q3, right=False, ordered=True)\n\n    # Tính toán tổng số khách hàng cho mỗi nhóm tuổi và giới tính\n    df_customer_counts = df.groupby(['age_group_q3', 'gender']).size().unstack(fill_value=0)\n\n    # Đảm bảo tất cả các nhãn nhóm tuổi đều có trong dữ liệu tổng hợp, điền 0 nếu không có\n    # Điều này giúp duy trì thứ tự nhất quán trong biểu đồ\n    df_customer_counts = df_customer_counts.reindex(labels_q3, fill_value=0)\n\n    # Chuẩn bị dữ liệu cho biểu đồ tháp: số lượng khách hàng của Nam sẽ là số âm để vẽ sang bên trái\n    # Đảm bảo các cột 'Nam' và 'Nữ' tồn tại với giá trị 0 nếu không có dữ liệu\n    if 'Nam' not in df_customer_counts.columns:\n        df_customer_counts['Nam'] = 0\n    if 'Nữ' not in df_customer_counts.columns:\n        df_customer_counts['Nữ'] = 0\n\n    male_counts = -df_customer_counts['Nam'] # Biểu diễn số lượng khách hàng Nam bằng giá trị âm\n    female_counts = df_customer_counts['Nữ'] # Giữ số lượng khách hàng Nữ bằng giá trị dương\n    age_groups_for_plot_q3 = df_customer_counts.index\n\n    # Tạo hình và trục cho biểu đồ tháp\n    fig, axes = plt.subplots(figsize=(12, 8))\n\n    # Vẽ dữ liệu của Nam (bên trái)\n    axes.barh(age_groups_for_plot_q3, male_counts, color='skyblue', label='Nam', align='center')\n\n    # Vẽ dữ liệu của Nữ (bên phải)\n    axes.barh(age_groups_for_plot_q3, female_counts, color='salmon', label='Nữ', align='center')\n\n    # Đặt tiêu đề và nhãn\n    axes.set_title('Tổng số khách hàng theo nhóm tuổi và giới tính', fontsize=16)\n    axes.set_xlabel('Số lượng khách hàng', fontsize=12)\n    axes.set_ylabel('Nhóm tuổi', fontsize=12)\n\n    # Tùy chỉnh các điểm đánh dấu trên trục x để hiển thị giá trị tuyệt đối\n    # Tính giá trị tuyệt đối tối đa để thiết lập giới hạn x đối xứng\n    max_abs_count = max(male_counts.abs().max(), female_counts.max())\n    axes.set_xlim(-max_abs_count * 1.1, max_abs_count * 1.1) # Thêm một chút khoảng trống\n\n    # Định dạng nhãn trục x để hiển thị giá trị dương\n    formatter = plt.FuncFormatter(lambda x, p: f'{abs(int(x))}') # Hiển thị số nguyên dương\n    axes.xaxis.set_major_formatter(formatter)\n\n    # Thêm chú giải để phân biệt giới tính\n    axes.legend(title='Giới tính')\n\n    # Thêm lưới để dễ đọc hơn\n    axes.grid(axis='x', linestyle='--', alpha=0.7)\n\n    # Điều chỉnh bố cục để tránh chồng lấn nhãn\n    plt.tight_layout()\n\n    # Định nghĩa đường dẫn file đồ thị\n    graph_file_name_q3 = \"q3.png\" # Cập nhật tên file theo yêu cầu\n    graph_file_folder_q3 = \"assets\"\n    graph_output_path_q3 = os.path.join(current_dir, '..', graph_file_folder_q3, graph_file_name_q3)\n\n    # Đảm bảo thư mục assets tồn tại\n    os.makedirs(os.path.dirname(graph_output_path_q3), exist_ok=True)\n\n    # Lưu biểu đồ đã tạo dưới dạng ảnh PNG\n    plt.savefig(graph_output_path_q3)\n    plt.close() # Đóng biểu đồ để giải phóng bộ nhớ\n\n    # Cập nhật thông báo console để tránh lỗi unicode\n    print(f\"Chart for Q3 saved to: {graph_output_path_q3}\")\n    # --- Kết thúc Trực quan hóa Biểu đồ cho Câu hỏi 3 ---\n\nexcept FileNotFoundError:\n    print(f\"Error: CSV file '{csv_file_path}' not found. Please ensure the CSV file is in the '{csv_file_folder}' directory relative to main.py.\")\nexcept ValueError as ve:\n    print(f\"Data error: {ve}\")\nexcept Exception as e:\n    print(f\"An unexpected error occurred: {e}\")\n",
+  "explanation": "Tôi đã cập nhật file `main.py` để tạo lại biểu đồ tháp tuổi cho Câu hỏi 3. Các thay đổi được thực hiện để tuân thủ `RULE-010`, tránh lỗi Unicode trong môi trường runtime:\n\n1.  **Cập nhật thông báo console:** Các thông báo `print` trong khối `try` và `except` đã được thay đổi để chỉ sử dụng ký tự ASCII. Điều này bao gồm thông báo khi biểu đồ được lưu và các thông báo lỗi.\n\nLogic tạo biểu đồ tháp tuổi (population pyramid chart) cho Câu hỏi 3 vẫn được giữ nguyên vì đây là lựa chọn phù hợp nhất để so sánh sự phân bổ số lượng khách hàng theo giới tính qua các nhóm tuổi, giúp xác định các phân khúc nhân khẩu học chính một cách trực quan và rõ ràng. Biểu đồ này giúp dễ dàng nhận thấy nhóm tuổi nào có số lượng khách hàng Nam hoặc Nữ chiếm ưu thế hơn. Tên file `q3.png` đã là ASCII và không cần thay đổi.",
   "update_vis_questions": [
     {
       "id": 1,
-      "question": "Determine the comprehensive churn rate and analyze its distribution across `customer_segment` and `risk_segment` categories. The objective is to identify specific segments exhibiting the highest churn percentages, informing strategic interventions by the end of the next fiscal quarter.",
-      "is_visualized": false,
-      "graph_path": null
+      "question": "What is the overall distribution of 'gender' in the dataset?",
+      "is_visualized": true,
+      "graph_path": "src/assets/gender_distribution_bar_chart.png"
     },
     {
       "id": 2,
-      "question": "Investigate the variance in customer churn (`exit` status) when disaggregated by `age` groups (e.g., young adults, middle-aged, seniors) and `gender` categories. The aim is to delineate demographic profiles exhibiting the highest susceptibility to churn within the forthcoming three-month period.",
-      "is_visualized": false,
-      "graph_path": null
+      "question": "Analyze the distribution of customer age by gender to identify potential age group differences for targeted marketing by end of Q4.",
+      "is_visualized": true,
+      "graph_path": "src/assets/age_distribution_by_gender_histogram.png"
     },
     {
       "id": 3,
-      "question": "Quantify the mean `balance`, `monthly_ir` (monthly income), and `credit_sco` for both churned and retained customer cohorts. Furthermore, ascertain if specific threshold values within these metrics exhibit a robust correlation with an elevated churn risk, thereby enabling the formulation of an effective retention strategy by the conclusion of Q3.",
-      "is_visualized": false,
-      "graph_path": null
+      "question": "Analyze the total number of customers segmented by gender across distinct age groups (e.g., 20-35, 36-55, 56-75, 76+) to identify key demographic segments for customized product offerings by the end of Q3.",
+      "is_visualized": true,
+      "graph_path": "src/assets/q3.png"
     },
     {
       "id": 4,
-      "question": "Assess the influence of `tenure_ye` (years of tenure), `nums_card` (number of cards), and `nums_service` (number of services) on customer churn. The analysis will determine if customers characterized by lower tenure, fewer cards, or fewer services demonstrate a statistically significant increase in churn propensity, guiding the development of product bundling strategies prior to year-end.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 5,
-      "question": "Evaluate whether a statistically significant discrepancy exists in churn rates between `active_member` statuses (True/False) and `digital_behavior` types (offline, mobile). The objective is to quantify the potential for churn reduction attainable through targeted promotion of digital engagement among currently inactive members by the commencement of the next fiscal year.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 6,
-      "question": "Analyze the correlation between `engagement_score` distribution and `loyalty_level` categories with customer churn. This analysis aims to identify specific score ranges or loyalty tiers that demonstrate disproportionately elevated churn rates, thereby facilitating the implementation of targeted loyalty programs within the subsequent six-month period.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 7,
-      "question": "Conduct an analysis of churn rates disaggregated by `married` statuses (Single, Married, Divorced, Widowed) and the top five `occupation` categories. This investigation seeks to uncover specific customer segments exhibiting an elevated churn risk, providing critical insights for the formulation of personalized communication strategies by the conclusion of Q4.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 8,
-      "question": "Determine if specific `origin_province` or `address` (district) areas exhibit statistically higher churn rates. Furthermore, delineate how these geographical insights can be leveraged to effectively customize local retention initiatives and optimize resource allocation within the ensuing nine-month timeframe.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 9,
-      "question": "Examine the distribution of `risk_score` among churned versus retained customers. The objective is to identify an optimal `risk_score` threshold (potentially distinct from the current 82nd percentile used for labeling) that most effectively predicts actual churn, thereby enhancing predictive accuracy by the end of Q2.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 10,
-      "question": "Characterize the distinct attributes of `cluster_group`s (1, 2, 3, 4) with respect to their churn rate, engagement metrics, and financial profiles. The overarching goal is to identify a specific cluster that unequivocally represents a high-churn, low-value customer segment, thereby informing decisions regarding strategic divestment or concentrated retention initiatives.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 11,
-      "question": "Ascertain the top three combinations of `customer_segment`, `risk_segment`, and a pivotal behavioral factor (`engagement_score` or `tenure_ye`) that collectively represent customer cohorts with the highest churn probability (e.g., exceeding 25%). This identification will serve to prioritize targeted intervention strategies for these groups within the forthcoming month.",
-      "is_visualized": false,
-      "graph_path": null
-    },
-    {
-      "id": 12,
-      "question": "Investigate the correlation between the `last_transaction_month` amount and churn probability. This analysis will specifically differentiate between customers with recent high-value transactions and those exhibiting low or zero `last_transaction_month` values, providing actionable intelligence for the deployment of immediate engagement campaigns targeting at-risk customers by the end of the current month.",
+      "question": "Phân tích số dư tài khoản trung bình của khách hàng theo nhóm tuổi và giới tính để xác định các phân khúc có tiềm năng tài chính cao, với mục tiêu tăng 10% tỷ lệ sử dụng sản phẩm đầu tư mục tiêu trong vòng 6 tháng.",
       "is_visualized": false,
       "graph_path": null
     }

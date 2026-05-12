@@ -9,6 +9,20 @@ import cors from "cors";
 import multer from "multer";
 import mongoose from "mongoose";
 
+// Multer configuration for file uploads
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        const allowed = ['.csv', '.txt'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (allowed.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only CSV and TXT files are allowed'));
+        }
+    }
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
@@ -179,6 +193,133 @@ app.post("/api/run-code", (req, res) => {
         }
         res.json({ output: stdout });
     });
+});
+
+// POST Upload Data Files
+app.post("/api/upload", upload.array('files'), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: "No files provided" });
+        }
+
+        const savedFiles = [];
+
+        for (const file of req.files) {
+            const ext = path.extname(file.originalname).toLowerCase();
+            let targetPath;
+            let targetName;
+
+            if (ext === '.csv') {
+                targetPath = path.join(DATA_DIR, 'data.csv');
+                targetName = 'data.csv';
+            } else if (ext === '.txt') {
+                targetPath = path.join(DATA_DIR, 'metadata.txt');
+                targetName = 'metadata.txt';
+            } else {
+                continue;
+            }
+
+            await fs.writeFile(targetPath, file.buffer, 'utf-8');
+            savedFiles.push(targetName);
+        }
+
+        if (savedFiles.length === 0) {
+            return res.status(400).json({ error: "No valid files were saved" });
+        }
+
+        res.json({ success: true, savedFiles });
+    } catch (e) {
+        console.error("Upload Error:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST Reset Data and Knowledge
+app.post("/api/reset", async (req, res) => {
+    try {
+        const deletedItems = [];
+
+        // Delete all files in DATA_DIR
+        try {
+            const dataFiles = await fs.readdir(DATA_DIR);
+            for (const file of dataFiles) {
+                const filePath = path.join(DATA_DIR, file);
+                const stat = await fs.stat(filePath);
+                if (stat.isFile()) {
+                    await fs.unlink(filePath);
+                    deletedItems.push(`data/${file}`);
+                }
+            }
+        } catch (e) { console.error("Error clearing data folder:", e); }
+
+        // Delete all files in KNOWLEDGE_DIR
+        try {
+            const knowledgeFiles = await fs.readdir(KNOWLEDGE_DIR);
+            for (const file of knowledgeFiles) {
+                const filePath = path.join(KNOWLEDGE_DIR, file);
+                const stat = await fs.stat(filePath);
+                if (stat.isFile()) {
+                    await fs.unlink(filePath);
+                    deletedItems.push(`knowledge/${file}`);
+                }
+            }
+        } catch (e) { console.error("Error clearing knowledge folder:", e); }
+
+        res.json({ success: true, deletedItems: deletedItems.length > 0 ? deletedItems : ['(no files deleted)'] });
+    } catch (e) {
+        console.error("Reset Error:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST Reset Data and Knowledge
+app.post("/api/reset", async (req, res) => {
+    try {
+        const deletedItems = [];
+
+        // Delete all files in DATA_DIR
+        try {
+            const dataFiles = await fs.readdir(DATA_DIR);
+            for (const file of dataFiles) {
+                const filePath = path.join(DATA_DIR, file);
+                const stat = await fs.stat(filePath);
+                if (stat.isFile()) {
+                    await fs.unlink(filePath);
+                    deletedItems.push(`data/${file}`);
+                }
+            }
+        } catch (e) { console.error("Error clearing data folder:", e); }
+
+        // Delete all files in KNOWLEDGE_DIR
+        try {
+            const knowledgeFiles = await fs.readdir(KNOWLEDGE_DIR);
+            for (const file of knowledgeFiles) {
+                const filePath = path.join(KNOWLEDGE_DIR, file);
+                const stat = await fs.stat(filePath);
+                if (stat.isFile()) {
+                    await fs.unlink(filePath);
+                    deletedItems.push(`knowledge/${file}`);
+                }
+            }
+        } catch (e) { console.error("Error clearing knowledge folder:", e); }
+
+        res.json({ success: true, deletedItems: deletedItems.length > 0 ? deletedItems : ['(no files deleted)'] });
+    } catch (e) {
+        console.error("Reset Error:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET Image for FILE mode
+app.get("/api/image/:filename", async (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const imagePath = path.join(__dirname, "../src/assets", filename);
+        await fs.access(imagePath);
+        res.sendFile(imagePath);
+    } catch (e) {
+        res.status(404).json({ error: "Image not found" });
+    }
 });
 
 // Start Server

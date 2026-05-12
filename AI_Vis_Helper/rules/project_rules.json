@@ -13,22 +13,47 @@
     {
       "id": "RULE-002",
       "title": "Data Availability Check",
-      "description": "If the user enables DATA context but no data is found/loaded, you MUST notify the user immediately."
+      "description": "The data folder is always available to the chatbot. If no data is found in /src/data/, notify the user immediately. There is no DATA toggle anymore."
     },
     {
       "id": "RULE-003",
+      "title": "Code Access Control",
+      "description": "The chatbot may only access, read, or write main.py if the CODE toggle is enabled. Do not modify or use main.py unless CODE mode is active."
+    },
+    {
+      "id": "RULE-004",
+      "title": "Visualization Question Management",
+      "description": "If the user needs to add or modify the visualization question set, the chatbot must allow it and follow the user request exactly."
+    },
+    {
+      "id": "RULE-005",
+      "title": "Comment Requirement",
+      "description": "All major code lines generated in main.py must include comments explaining their usage. Comments should be clear, concise, and placed near the relevant code."
+    },
+    {
+      "id": "RULE-006",
+      "title": "Primary Language",
+      "description": "Primary responses should be in Vietnamese. English may be used only for code examples or technical terms when necessary."
+    },
+    {
+      "id": "RULE-007",
       "title": "Graph Selection Logic",
       "description": "Every graph choice must be justified by data type matching and clarity. Avoid repetitive graph types. Ensure the graph does not lead to bloating or misunderstanding."
     },
     {
-      "id": "RULE-004",
+      "id": "RULE-008",
       "title": "SMART Visualization Questions",
       "description": "Questions generated must be Specific, Measurable, Achievable, Relevant, and Time-bound. Example: 'Analyze purchasing behavior over 6 months to identify factors increasing repurchase by 5% by Q2 end.'"
     },
     {
-      "id": "RULE-005",
+      "id": "RULE-009",
       "title": "Next-Step Suggestions",
       "description": "Every response must end with a 'Suggested Next Step'. Logic: Basic Analysis -> Vis Questions; Vis Questions -> Deep Analysis; Unfinished Questions -> Graph Visualization."
+    },
+    {
+      "id": "RULE-010",
+      "title": "ASCII File Naming and Console Output",
+      "description": "Use only ASCII characters for generated file names and any console printing messages to prevent Unicode encoding issues in the runtime environment."
     }
   ]
 }

@@ -6,7 +6,6 @@ export const ChatPage = () => {
     const [inputValue, setInputValue] = useState('');
     const [selectedTag, setSelectedTag] = useState('chat');
     const [isLoading, setIsLoading] = useState(false);
-    const [useDataContext, setUseDataContext] = useState(false);
     const [useCodeContext, setUseCodeContext] = useState(false);
     const [useKnowledgeContext, setUseKnowledgeContext] = useState(false);
 
@@ -44,6 +43,58 @@ export const ChatPage = () => {
         }
     };
 
+    const handleUpload = async (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsLoading(true);
+        try {
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+
+            const res = await fetch("http://localhost:5174/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            const message = `✅ Upload successful! Saved:\n${data.savedFiles.join('\n')}`;
+            setMessages(prev => [...prev, { id: Date.now(), type: 'bot', text: message }]);
+            fileInputRef.current.value = '';
+        } catch (e) {
+            console.error("Upload Error:", e);
+            setMessages(prev => [...prev, { id: Date.now(), type: 'bot', text: `❌ Upload failed: ${e.message}` }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleReset = async () => {
+        if (!window.confirm('⚠️ This will delete all data and knowledge files. Continue?')) return;
+
+        setIsLoading(true);
+        try {
+            const res = await fetch("http://localhost:5174/api/reset", {
+                method: "POST",
+            });
+
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            const message = `🗑️ Reset complete!\nDeleted:\n${data.deletedItems.join('\n')}`;
+            setMessages(prev => [...prev, { id: Date.now(), type: 'bot', text: message }]);
+        } catch (e) {
+            console.error("Reset Error:", e);
+            setMessages(prev => [...prev, { id: Date.now(), type: 'bot', text: `❌ Reset failed: ${e.message}` }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const processMessage = async (text) => {
         if (!text || !text.trim() || isLoading) return;
 
@@ -53,34 +104,73 @@ export const ChatPage = () => {
         setInputValue('');
         setIsLoading(true);
 
-        // 2. Standard Chat Logic (Ensuring API is called)
-        try {
-            const res = await fetch("http://localhost:5174/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    prompt: text, 
-                    useData: useDataContext, 
-                    useCode: useCodeContext,
-                    useKnowledge: useKnowledgeContext
-                }),
-            });
-            
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-
-            let botText = data.reply;
-            if (data.wasUpdated) {
-                botText += `\n\n### 🛠️ Modifications Applied\n\`\`\`python\n// unchanged\n${data.newCode}\n// unchanged\n\`\`\``;
+        if (selectedTag === 'file') {
+            // Handle FILE mode
+            if (text.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+                // Image file request
+                const imageUrl = `http://localhost:5174/api/image/${text}`;
+                try {
+                    const res = await fetch(imageUrl);
+                    if (res.ok) {
+                        setMessages(prev => [...prev, { 
+                            id: Date.now() + 2, 
+                            type: 'bot', 
+                            text: `Displaying ${text}`, 
+                            image: imageUrl, 
+                            downloadUrl: imageUrl 
+                        }]);
+                    } else {
+                        setMessages(prev => [...prev, { 
+                            id: Date.now() + 2, 
+                            type: 'bot', 
+                            text: `❌ Image "${text}" not found.` 
+                        }]);
+                    }
+                } catch (e) {
+                    setMessages(prev => [...prev, { 
+                        id: Date.now() + 2, 
+                        type: 'bot', 
+                        text: `❌ Error loading image "${text}".` 
+                    }]);
+                }
+            } else {
+                // Not an image
+                setMessages(prev => [...prev, { 
+                    id: Date.now() + 2, 
+                    type: 'bot', 
+                    text: `File mode: "${text}" is not a supported image file.` 
+                }]);
             }
+        } else {
+            // Standard CHAT Logic
+            try {
+                const res = await fetch("http://localhost:5174/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        prompt: text, 
+                        useData: true, 
+                        useCode: useCodeContext,
+                        useKnowledge: useKnowledgeContext
+                    }),
+                });
+                
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
 
-            setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: botText }]);
-        } catch (e) {
-            console.error("Chat Error:", e);
-            setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: `❌ Error: ${e.message}` }]);
-        } finally {
-            setIsLoading(false); // ALWAYS reset loading
+                let botText = data.reply;
+                if (data.wasUpdated) {
+                    botText += `\n\n### 🛠️ Modifications Applied\n\`\`\`python\n// unchanged\n${data.newCode}\n// unchanged\n\`\`\``;
+                }
+
+                setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: botText }]);
+            } catch (e) {
+                console.error("Chat Error:", e);
+                setMessages(prev => [...prev, { id: Date.now() + 2, type: 'bot', text: `❌ Error: ${e.message}` }]);
+            }
         }
+
+        setIsLoading(false); // ALWAYS reset loading
     };
 
     return (
@@ -99,15 +189,13 @@ export const ChatPage = () => {
                         <button onClick={() => handleAction('display')} className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-bold hover:bg-blue-600">DISPLAY</button>
                         <button onClick={() => handleAction('run')} className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700">RUN</button>
                         <button onClick={() => fileInputRef.current.click()} className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-200">UPLOAD DATA</button>
+                        <button onClick={handleReset} className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold hover:bg-red-600">RESET</button>
                         <input type="file" multiple accept=".csv,.txt" ref={fileInputRef} className="hidden" 
-                            onChange={(e) => {/* Reuse handleUpload logic here */}} />
+                            onChange={handleUpload} />
                     </div>
                 </div>
 
                 <div className="flex gap-4 p-2.5 bg-indigo-50 rounded-xl border border-indigo-100">
-                    <label className="flex items-center gap-2 text-xs font-bold text-indigo-900 cursor-pointer">
-                        <input type="checkbox" checked={useDataContext} onChange={e => setUseDataContext(e.target.checked)} className="accent-indigo-600" /> DATA
-                    </label>
                     <label className="flex items-center gap-2 text-xs font-bold text-indigo-900 cursor-pointer">
                         <input type="checkbox" checked={useCodeContext} onChange={e => setUseCodeContext(e.target.checked)} className="accent-indigo-600" /> CODE (MODIFIABLE)
                     </label>
@@ -154,6 +242,12 @@ export const ChatPage = () => {
                                         onError={(e) => e.target.style.display = 'none'} 
                                     />
                                 </div>
+                            )}
+
+                            {msg.downloadUrl && (
+                                <a href={msg.downloadUrl} download className="mt-2 inline-block px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">
+                                    Download Image
+                                </a>
                             )}
                         </div>
                     </div>
